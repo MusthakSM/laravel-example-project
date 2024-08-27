@@ -2,8 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\JobPosted;
 use App\Models\Job;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Mail;
 
 class JobController extends Controller
 {
@@ -38,11 +43,15 @@ class JobController extends Controller
             'salary' => ['required']
         ]);
 
-        Job::create([
+        $job =  Job::create([
             'title' => request('title'),
             'salary' => request('salary'),
             'employer_id' => 1
         ]);
+
+        Mail::to($job->employer->user)->queue(
+            new JobPosted($job)
+        );
 
         return redirect('/jobs');
     }
@@ -50,6 +59,22 @@ class JobController extends Controller
     // edit route implementation for the Jobs
     public function edit(Job $job)
     {
+        // 1. User need to be signed in
+//        if(Auth::guest()){
+//            return redirect('/login');
+//        }
+        /*
+         * Above logic is irrelevant since we have used the Gate
+         */
+        // 2. User need to be responsible for that Job
+//        if($job->employer->user->isNot(Auth::user())){
+//            abort(403);
+//        }
+        /*
+        Above Block is extracted and put into a Gate..
+        */
+//        Gate::authorize('edit-job', $job);  removed, because same action is done with middleware authorization
+
         return view('jobs.edit', ['job' => $job]);
     }
 

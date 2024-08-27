@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,7 +19,8 @@ class EmployerFactory extends Factory
     {
         return [
             // provide the attribute that you have to populate..
-            'name' => fake()->company()
+            'name' => fake()->company(),
+            'user_id' => User::factory(),
         ];
     }
 }
